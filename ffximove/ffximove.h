@@ -108,6 +108,9 @@ private:
     //https://git.ashitaxi.com/Plugins/MultiSend/src/branch/master/src/MultiSend/MultiSend.h
     sFollow* p_Follow;
 
+    //Navmesh
+    CNavMesh* m_navMesh; // zones navmesh for finding paths
+
     //State tracking
     std::string			s_name;
     uint32_t			s_position;

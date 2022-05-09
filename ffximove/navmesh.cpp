@@ -22,9 +22,9 @@
 
 #include "navmesh.h"
 
-#include <thirdparty/detour/DetourCommon.h>
-#include <thirdparty/detour/DetourNavMesh.h>
-#include <thirdparty/detour/DetourNavMeshQuery.h>
+#include <DetourCommon.h>
+#include <DetourNavMesh.h>
+#include <DetourNavMeshQuery.h>
 
 #include <cfloat>
 #include <cstring>
