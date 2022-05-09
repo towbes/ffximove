@@ -41,12 +41,16 @@
 //From thorny's common headers
 //https://github.com/ThornyFFXI/common/tree/master/thirdparty
 #include "thirdparty/rapidxml.hpp"
+#include "navmesh.h"
 //#include "Settings.h"
 //#include "Output.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <filesystem>
+#include <psapi.h>
+#include <stdint.h>
+
 
 /**
  * Plugin Information
@@ -57,7 +61,7 @@
  * Please note: Ashita maintains the pointer of this object! Your plugin should never try to delete
  *              this object manually!
  */
-plugininfo_t* g_PluginInfo = nullptr;
+extern plugininfo_t* g_PluginInfo;
 
 
 /**
@@ -90,6 +94,7 @@ struct sFollow
  */
 class FFXIMOVE : IPlugin
 {
+private:
     IAshitaCore*        m_AshitaCore;
     ILogManager*        m_LogManager;
     uint32_t            m_PluginId;
@@ -128,7 +133,7 @@ public:
 
 public:
     // Plugin Information Callback
-    plugininfo_t GetPluginInfo(void) override;
+    plugininfo_t GetPluginInfo(void);
 
 public:
     // Main Initialization and Cleanup Callbacks
@@ -158,7 +163,8 @@ public:
 
     //fileio.cpp
     //https://github.com/ThornyFFXI/Lootwhore/blob/6cad6d55c9a0e5c7bbb378404d196de8a9e67aff/Lootwhore.h
-    void FFXIMOVE::SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name);
+    void SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name);
+
 };
 
 #endif // __ASHITA_FFXIMOVE_H_INCLUDED__

@@ -1,0 +1,118 @@
+﻿/*
+===========================================================================
+
+  Copyright (c) 2010-2015 Darkstar Dev Teams
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program.  If not, see http://www.gnu.org/licenses/
+
+===========================================================================
+*/
+
+/*
+The NavMesh class will load and find paths given a start point and end point.
+*/
+#ifndef _NAVMESH_H
+#define _NAVMESH_H
+
+#include <thirdparty/detour/DetourNavMesh.h>
+#include <thirdparty/detour/DetourNavMeshQuery.h>
+
+#include "xirand.h"
+
+#include <memory>
+#include <vector>
+
+#define MAX_NAV_POLYS 256
+
+static const int NAVMESHSET_MAGIC   = 'M' << 24 | 'S' << 16 | 'E' << 8 | 'T'; //'MSET';
+static const int NAVMESHSET_VERSION = 1;
+
+struct position_t
+{
+    float  x;
+    float  y; // Entity height, relative to "sea level"
+    float  z;
+    uint16_t moving; // Something like the travel distance, the number of steps required for correct rendering in the client.
+
+    // The angle of rotation of the entity relative to its position. A maximum rotation value of
+    // 255 is used as the rotation is stored in `uint8`. Use `rotationToRadian()` and
+    // `radianToRotation()` util functions to convert back and forth between the 255-encoded
+    // rotation value and the radian value.
+    uint8_t rotation;
+};
+
+struct NavMeshSetHeader
+{
+    int             magic;
+    int             version;
+    int             numTiles;
+    dtNavMeshParams params;
+};
+
+struct NavMeshTileHeader
+{
+    dtTileRef tileRef;
+    int       dataSize;
+};
+
+class CNavMesh
+{
+public:
+    static const int8_t ERROR_NEARESTPOLY = -2;
+    static void       ToFFXIPos(const position_t* pos, float* out);
+    static void       ToFFXIPos(float* out);
+    static void       ToFFXIPos(position_t* out);
+    static void       ToDetourPos(const position_t* pos, float* out);
+    static void       ToDetourPos(float* out);
+    static void       ToDetourPos(position_t* out);
+
+public:
+    CNavMesh(uint16_t zoneID);
+    ~CNavMesh();
+
+    bool load(const std::string& path);
+    void reload();
+    void unload();
+
+    std::vector<position_t>      findPath(const position_t& start, const position_t& end);
+    std::pair<int16_t, position_t> findRandomPosition(const position_t& start, float maxRadius);
+
+    // Returns true if the point is in water
+    bool inWater(const position_t& point);
+
+    // Returns true if no wall was hit
+    //
+    // Recast Detour Docs:
+    // Casts a 'walkability' ray along the surface of the navigation mesh from the start position toward the end position.
+    // Note: This is not a point-to-point in 3D space calculation, it is 2D across the navmesh!
+    bool raycast(const position_t& start, const position_t& end, bool lookOffMesh);
+
+    bool validPosition(const position_t& position);
+
+    // Like validPosition(), but will also set the given position to the valid position that it finds.
+    void snapToValidPosition(position_t& position);
+
+private:
+    void outputError(uint32_t status);
+    bool onSameFloor(const position_t& start, float* spos, const position_t& end, float* epos, dtQueryFilter& filter);
+
+    std::string                filename;
+    uint16_t                     m_zoneID;
+    dtRaycastHit               m_hit;
+    dtPolyRef                  m_hitPath[20];
+    std::unique_ptr<dtNavMesh> m_navMesh;
+    dtNavMeshQuery             m_navMeshQuery;
+};
+
+#endif
