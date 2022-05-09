@@ -110,6 +110,10 @@ private:
 
     //Navmesh
     CNavMesh* m_navMesh; // zones navmesh for finding paths
+    std::vector<position_t> m_points;
+    std::vector<position_t> m_turnPoints;
+    int16_t  m_currentPoint;
+    bool   m_onPoint;
 
     //State tracking
     std::string			s_name;

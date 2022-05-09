@@ -104,6 +104,16 @@ CNavMesh::CNavMesh(uint16_t zoneID)
 
 CNavMesh::~CNavMesh() = default;
 
+bool CNavMesh::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
+{
+    // Store the variables for later usage..
+    this->m_AshitaCore = core;
+    this->m_LogManager = log;
+    this->m_PluginId = id;
+
+    return true;
+}
+
 bool CNavMesh::load(const std::string& filename)
 {
     this->filename = filename;
@@ -137,8 +147,8 @@ bool CNavMesh::load(const std::string& filename)
     if (dtStatusFailed(status))
     {
         //lsb error message
-        //ShowNavError("CNavMesh::load Could not initialize detour for (%s)", filename);
-        outputError(status);
+        this->m_AshitaCore->GetChatManager()->Writef("CNavMesh::load Could not initialize detour for (%s)", filename);
+        //outputError(status);
         return false;
     }
 
@@ -168,8 +178,8 @@ bool CNavMesh::load(const std::string& filename)
 
     if (dtStatusFailed(status))
     {
-        //ShowNavError("CNavMesh::load Error loading navmeshquery (%s)", filename.c_str());
-        outputError(status);
+        this->m_AshitaCore->GetChatManager()->Writef("CNavMesh::load Error loading navmeshquery (%s)", filename.c_str());
+        //outputError(status);
         return false;
     }
 
@@ -229,17 +239,18 @@ void CNavMesh::outputError(uint32_t status)
 
 std::vector<position_t> CNavMesh::findPath(const position_t& start, const position_t& end)
 {
+    this->m_AshitaCore->GetChatManager()->Write("navmesh Finding a path");
     //TracyZoneScoped;
     std::vector<position_t> ret;
     dtStatus                status;
 
     float spos[3];
     CNavMesh::ToDetourPos(&start, spos);
-    // ShowDebug("start pos %f %f %f", spos[0], spos[1], spos[2]);
+    this->m_AshitaCore->GetChatManager()->Writef("start pos %f %f %f", spos[0], spos[1], spos[2]);
 
     float epos[3];
     CNavMesh::ToDetourPos(&end, epos);
-    // ShowDebug("end pos %f %f %f", epos[0], epos[1], epos[2]);
+    this->m_AshitaCore->GetChatManager()->Writef("end pos %f %f %f", epos[0], epos[1], epos[2]);
 
     dtQueryFilter filter;
     filter.setIncludeFlags(0xffff);
@@ -255,8 +266,8 @@ std::vector<position_t> CNavMesh::findPath(const position_t& start, const positi
 
     if (dtStatusFailed(status))
     {
-        //ShowNavError("CNavMesh::findPath start point invalid (%f, %f, %f) (%u)", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
+        this->m_AshitaCore->GetChatManager()->Writef("CNavMesh::findPath start point invalid (%f, %f, %f)", spos[0], spos[1], spos[2]);
+        //outputError(status);
         return ret;
     }
 
@@ -264,14 +275,14 @@ std::vector<position_t> CNavMesh::findPath(const position_t& start, const positi
 
     if (dtStatusFailed(status))
     {
-        //ShowNavError("CNavMesh::findPath end point invalid (%f, %f, %f) (%u)", epos[0], epos[1], epos[2], m_zoneID);
-        outputError(status);
+        this->m_AshitaCore->GetChatManager()->Writef("CNavMesh::findPath end point invalid (%f, %f, %f)", epos[0], epos[1], epos[2]);
+        //outputError(status);
         return ret;
     }
 
     if (!m_navMesh->isValidPolyRef(startRef) || !m_navMesh->isValidPolyRef(endRef))
     {
-        //ShowNavError("CNavMesh::findPath Couldn't find path (%f, %f, %f)->(%f, %f, %f) (%u) ", start.x, start.y, start.z, end.x, end.y, end.z, m_zoneID);
+        this->m_AshitaCore->GetChatManager()->Writef("CNavMesh::findPath Couldn't find path (%f, %f, %f)->(%f, %f, %f)", start.x, start.y, start.z, end.x, end.y, end.z);
         return ret;
     }
 
@@ -287,8 +298,8 @@ std::vector<position_t> CNavMesh::findPath(const position_t& start, const positi
 
     if (dtStatusFailed(status))
     {
-        //ShowNavError("CNavMesh::findPath findPath error (%u)", m_zoneID);
-        outputError(status);
+        this->m_AshitaCore->GetChatManager()->Write("CNavMesh::findPath findPath error");
+        //outputError(status);
         return ret;
     }
 
@@ -301,8 +312,8 @@ std::vector<position_t> CNavMesh::findPath(const position_t& start, const positi
 
         if (dtStatusFailed(status))
         {
-            //ShowNavError("CNavMesh::findPath findStraightPath error (%u)", m_zoneID);
-            outputError(status);
+            this->m_AshitaCore->GetChatManager()->Write("CNavMesh::findPath findStraightPath error");
+            //outputError(status);
             return ret;
         }
 
@@ -316,7 +327,7 @@ std::vector<position_t> CNavMesh::findPath(const position_t& start, const positi
 
             CNavMesh::ToFFXIPos(pathPos);
 
-            ret.push_back({ pathPos[0], pathPos[1], pathPos[2], 0, 0 });
+            ret.push_back({ pathPos[0], pathPos[1], pathPos[2]});
         }
     }
 
@@ -346,7 +357,7 @@ std::pair<int16_t, position_t> CNavMesh::findRandomPosition(const position_t& st
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::findRandomPath start point invalid (%f, %f, %f) (%u)", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return std::make_pair(ERROR_NEARESTPOLY, position_t{});
     }
 
@@ -362,13 +373,13 @@ std::pair<int16_t, position_t> CNavMesh::findRandomPosition(const position_t& st
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::findRandomPath Error (%u)", m_zoneID);
-        outputError(status);
+        //outputError(status);
         return std::make_pair(ERROR_NEARESTPOLY, position_t{});
     }
 
     CNavMesh::ToFFXIPos(randomPt);
 
-    return std::make_pair(0, position_t{ randomPt[0], randomPt[1], randomPt[2], 0, 0 });
+    return std::make_pair(0, position_t{ randomPt[0], randomPt[1], randomPt[2]});
 }
 
 bool CNavMesh::inWater(const position_t& point)
@@ -420,7 +431,7 @@ void CNavMesh::snapToValidPosition(position_t& position)
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::Failed to find nearby valid poly (%f, %f, %f) (%u)", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return;
     }
 
@@ -454,7 +465,7 @@ bool CNavMesh::onSameFloor(const position_t& start, float* spos, const position_
         if (dtStatusFailed(status) || polyCount <= 0)
         {
             //ShowNavError("CNavMesh::Bad vertical polygon query (%f, %f, %f) (%u)", epos[0], epos[1], epos[2], m_zoneID);
-            outputError(status);
+            //outputError(status);
             return false;
         }
 
@@ -531,7 +542,7 @@ bool CNavMesh::raycast(const position_t& start, const position_t& end, bool look
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::raycast start point invalid (%f, %f, %f) (%u)", spos[0], spos[1], spos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return true;
     }
 
@@ -549,7 +560,7 @@ bool CNavMesh::raycast(const position_t& start, const position_t& end, bool look
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::raycast end point invalid (%f, %f, %f) (%u)", epos[0], epos[1], epos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return true;
     }
 
@@ -568,7 +579,7 @@ bool CNavMesh::raycast(const position_t& start, const position_t& end, bool look
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::raycast findDistanceToWall failed (%f, %f, %f) (%u)", epos[0], epos[1], epos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return true;
     }
 
@@ -585,7 +596,7 @@ bool CNavMesh::raycast(const position_t& start, const position_t& end, bool look
         if (dtStatusFailed(status))
         {
             //ShowNavError("CNavMesh::raycast closestPointOnPolyBoundary failed (%u)", m_zoneID);
-            outputError(status);
+            //outputError(status);
             return true;
         }
     }
@@ -595,7 +606,7 @@ bool CNavMesh::raycast(const position_t& start, const position_t& end, bool look
     if (dtStatusFailed(status))
     {
         //ShowNavError("CNavMesh::raycast raycast failed (%f, %f, %f)->(%f, %f, %f) (%u)", spos[0], spos[1], spos[2], epos[0], epos[1], epos[2], m_zoneID);
-        outputError(status);
+        //outputError(status);
         return true;
     }
 

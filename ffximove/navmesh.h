@@ -27,6 +27,7 @@ The NavMesh class will load and find paths given a start point and end point.
 
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
+#include "Ashita.h"
 
 #include "xirand.h"
 
@@ -43,13 +44,14 @@ struct position_t
     float  x;
     float  y; // Entity height, relative to "sea level"
     float  z;
-    uint16_t moving; // Something like the travel distance, the number of steps required for correct rendering in the client.
+    //uint16_t moving; // Something like the travel distance, the number of steps required for correct rendering in the client.
 
-    // The angle of rotation of the entity relative to its position. A maximum rotation value of
+    // The angle of 
+    //  of the entity relative to its position. A maximum rotation value of
     // 255 is used as the rotation is stored in `uint8`. Use `rotationToRadian()` and
     // `radianToRotation()` util functions to convert back and forth between the 255-encoded
     // rotation value and the radian value.
-    uint8_t rotation;
+    //uint8_t rotation;
 };
 
 struct NavMeshSetHeader
@@ -68,7 +70,14 @@ struct NavMeshTileHeader
 
 class CNavMesh
 {
+private:
+    IAshitaCore* m_AshitaCore;
+    ILogManager* m_LogManager;
+    uint32_t            m_PluginId;
+
 public:
+    bool Initialize(IAshitaCore* core, ILogManager* log, uint32_t id);
+
     static const int8_t ERROR_NEARESTPOLY = -2;
     static void       ToFFXIPos(const position_t* pos, float* out);
     static void       ToFFXIPos(float* out);
@@ -76,6 +85,7 @@ public:
     static void       ToDetourPos(const position_t* pos, float* out);
     static void       ToDetourPos(float* out);
     static void       ToDetourPos(position_t* out);
+
 
 public:
     CNavMesh(uint16_t zoneID);
@@ -113,6 +123,7 @@ private:
     dtPolyRef                  m_hitPath[20];
     std::unique_ptr<dtNavMesh> m_navMesh;
     dtNavMeshQuery             m_navMeshQuery;
+
 };
 
 #endif

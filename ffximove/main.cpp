@@ -89,7 +89,27 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
     //pOutput = new OutputHelpers(core, log, "ffximove");
     //pSettings = new SettingsHelper(core, pOutput, "ffximove");
     m_navMesh = nullptr;
+    this->m_AshitaCore->GetChatManager()->Write("Loading navmesh");
+    std::string install = m_AshitaCore->GetAshitaInstallPathA();
+    int zone = m_AshitaCore->GetDataManager()->GetParty()->GetMemberZone(0);
+    if (m_navMesh == nullptr)
+    {
+        m_navMesh = new CNavMesh(zone);
+        m_navMesh->Initialize(core, log, id);
+    }
 
+    char file[1024];
+    sprintf_s(file, 1024, "%s\\config\\navmeshes\\%s.nav", install.c_str(), std::to_string(zone).c_str());
+
+    if (!m_navMesh->load(file))
+    {
+        this->m_AshitaCore->GetChatManager()->Write("Failed to load navmesh");
+        delete m_navMesh;
+        m_navMesh = nullptr;
+    }
+    else {
+        this->m_AshitaCore->GetChatManager()->Write("Navmesh loaded");
+    }
 
     //initialize target x and z to 0
     s_tarpos_x = 0;
@@ -118,89 +138,7 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
 void FFXIMOVE::Release(void)
 { }
 
-/**
- * Invoked when a command is being processed by the game client.
- *
- * Note:
- *      Please note, this handles all things done via the game in terms of commands
- *      and chat. All / commands as well as normal chat you type, macros, etc. will
- *      be processed through here. You should only use this to handle / commands.
- *
- *      If you wish to handle other bits of outgoing text before the client sees it,
- *      then use the HandleOutgoingText callback instead.
- *
- * @param {const char*} command         - The raw command string being processed.
- * @param {uint32_t} type               - The type of the command being processed. (See Ashita::CommandInputType enumeration.)
- * @returns {bool} True if handled and should be blocked, false otherwise.
- *
- * @notes
- *
- *      Plugins can handle and block input from being sent to the game in this function. Returning
- *      true will block the current command from happening at all within the client. Plugins should
- *      only return true when the command passed to this function is being handled by the plugin.
- */
-bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
-{
-    UNREFERENCED_PARAMETER(type);
 
-    // Split the command into args..
-    std::vector<std::string> args;
-    auto count = Ashita::Commands::GetCommandArgs(command, &args);
-
-    // Handle the example slash command..
-    HANDLECOMMAND("/fm")
-    {
-        // Check for a parameter..
-        if (count >= 2 && args[1] == "run") {
-            this->m_AshitaCore->GetChatManager()->Write("Starting run");
-            //uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-            //float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-            //float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-            s_tarpos_x = std::atoi(args[2].c_str());
-            s_tarpos_z = std::atoi(args[3].c_str());
-            c_run = true;
-        }
-        else if (count >= 2 && args[1] == "stop") {
-            this->m_AshitaCore->GetChatManager()->Write("Stopping");
-            c_run = false;
-        }
-        else if (count >= 3 && args[1] == "save") {
-            this->m_AshitaCore->GetChatManager()->Write("Save waypoint");
-            uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-            float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-            float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-            float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
-            FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[2].c_str());
-        }
-        else if (count >= 2 && args[1] == "loadnav") {
-            this->m_AshitaCore->GetChatManager()->Write("Loading navmesh");
-            std::string install = m_AshitaCore->GetAshitaInstallPathA();
-            int zone = m_AshitaCore->GetDataManager()->GetParty()->GetMemberZone(0);
-            if (m_navMesh == nullptr)
-            {
-                m_navMesh = new CNavMesh(zone);
-            }
-
-            char file[1024];
-            sprintf_s(file, 1024, "%s\\config\\navmeshes\\%s.nav", install.c_str(), std::to_string(zone).c_str());
-
-            if (!m_navMesh->load(file))
-            {
-                this->m_AshitaCore->GetChatManager()->Write("Failed to load navmesh");
-                delete m_navMesh;
-                m_navMesh = nullptr;
-            }
-            else {
-                this->m_AshitaCore->GetChatManager()->Write("Navmesh loaded");
-            }
-        }
-        // Return true here to block this command from going to the client.
-        return true;
-    }
-
-    // Return false here to allow unhandled commands to continue to be processed.
-    return false;
-}
 
 /**
  * Invoked when incoming text being sent to the chat log is being processed.
@@ -360,43 +298,6 @@ bool FFXIMOVE::Direct3DInitialize(IDirect3DDevice8* device)
 void FFXIMOVE::Direct3DRelease(void)
 { }
 
-/**
- * Invoked when the Direct3D device is beginning to render. (BeginScene)
- *
- * @notes
- *
- *      This will only be called if you returned true inside of Direct3DInitialize!
- *      This function is called after BeginScene is called.
- */
-void FFXIMOVE::Direct3DPreRender(void)
-{ 
-    if (c_run)
-    {
-        uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-        float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-        float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-        s_vector_x = s_tarpos_x - my_pos_x;
-        s_vector_z = s_tarpos_z - my_pos_z;
-        double distance = sqrt(pow(s_vector_x, 2) + pow(s_vector_z, 2));
-
-        if ((distance > 0.4f) && (distance < c_maxdist))
-        {
-            p_Follow->FollowID = 0;
-            p_Follow->FollowIndex = 0;
-            p_Follow->DirX = s_vector_x;
-            p_Follow->DirY = 0;
-            p_Follow->DirZ = s_vector_z;
-            p_Follow->Autorun = 1;
-            s_last_run_state = true;
-        }
-        else if (s_last_run_state)
-        {
-            p_Follow->Autorun = 0;
-            c_run = false;
-            s_last_run_state = false;
-        }
-    }
-}
 
 /**
  * Invoked when the Direct3D device is ending its rendering. (EndScene)

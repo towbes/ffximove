@@ -21,6 +21,12 @@
     <ClCompile Include="navmesh.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="movement.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="commands.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ffximove.h">

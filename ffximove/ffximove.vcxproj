@@ -109,7 +109,7 @@
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\Users\ritzgames\Downloads\MQ2Nav-master\MQ2Nav-master\dependencies\recast\Detour\Include;C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\WingsXI\ffximove\ffximove;C:\Users\ritzgames\Downloads\MQ2Nav-master\MQ2Nav-master\dependencies\recast\Detour\Include;C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -188,8 +188,10 @@
     <ClInclude Include="navmesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="commands.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="fileio.cpp" />
+    <ClCompile Include="movement.cpp" />
     <ClCompile Include="navmesh.cpp" />
   </ItemGroup>
   <ItemGroup>
