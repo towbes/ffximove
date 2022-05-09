@@ -97,7 +97,7 @@
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\WingsXI\Ashita\plugins\ADK;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -113,7 +113,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_WINDOWS;_USRDLL;EXAMPLEPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\WingsXI\Ashita\plugins\ADK;C:\WingsXI\Ashita\plugins\ADK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK;C:\WingsXI\Ashita\plugins\ADK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,7 +133,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>Async</ExceptionHandling>
-      <AdditionalIncludeDirectories>C:\WingsXI\Ashita\plugins\ADK;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -153,7 +153,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_WINDOWS;_USRDLL;EXAMPLEPLUGIN_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\WingsXI\Ashita\plugins\ADK;C:\WingsXI\Ashita\plugins\ADK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK;C:\WingsXI\Ashita\plugins\ADK;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

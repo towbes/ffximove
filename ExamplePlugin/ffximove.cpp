@@ -86,6 +86,10 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
     Pointer += 25;
     p_Follow = (sFollow*)(*((DWORD*)Pointer));
 
+    //settings and output helper ashita4 only
+    //pOutput = new OutputHelpers(core, log, "ffximove");
+    //pSettings = new SettingsHelper(core, pOutput, "ffximove");
+
     //initialize target x and z to 0
     s_tarpos_x = 0;
     s_tarpos_z = 0;
@@ -148,16 +152,24 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
         // Check for a parameter..
         if (count >= 2 && args[1] == "run") {
             this->m_AshitaCore->GetChatManager()->Write("Starting run");
-            uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-            float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-            float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-            s_tarpos_x = my_pos_x + 5;
-            s_tarpos_z = my_pos_z + 5;
+            //uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
+            //float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
+            //float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
+            s_tarpos_x = std::atoi(args[2].c_str());
+            s_tarpos_z = std::atoi(args[3].c_str());
             c_run = true;
         }
         else if (count >= 2 && args[1] == "stop") {
             this->m_AshitaCore->GetChatManager()->Write("Stopping");
             c_run = false;
+        }
+        else if (count >= 3 && args[1] == "save") {
+            this->m_AshitaCore->GetChatManager()->Write("Save waypoint");
+            uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
+            float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
+            float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
+            float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
+            FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[2].c_str());
         }
         // Return true here to block this command from going to the client.
         return true;
@@ -570,4 +582,64 @@ __declspec(dllexport) void __stdcall CreatePluginInfo(plugininfo_t* info)
 __declspec(dllexport) IPlugin* __stdcall CreatePlugin(void)
 {
     return (IPlugin*)new FFXIMOVE;
+}
+
+void FFXIMOVE::SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name)
+{
+    std::string install = m_AshitaCore->GetAshitaInstallPathA();
+    int zone = m_AshitaCore->GetDataManager()->GetParty()->GetMemberZone(0);
+    char buffer[1024];
+    sprintf_s(buffer, 1024, "%s\\config\\ffximove\\waypoints\\%s.xml", install.c_str(), std::to_string(zone).c_str());
+
+    //Ensure directories exist, making them if not.
+    std::string makeDirectory(buffer);
+    size_t nextDirectory = makeDirectory.find("\\");
+    nextDirectory = makeDirectory.find("\\", nextDirectory + 1);
+    while (nextDirectory != std::string::npos)
+    {
+        std::string currentDirectory = makeDirectory.substr(0, nextDirectory + 1);
+        if ((!CreateDirectory(currentDirectory.c_str(), NULL)) && (ERROR_ALREADY_EXISTS != GetLastError()))
+        {
+            this->m_AshitaCore->GetChatManager()->Write("Could not find or create folder.");
+            return;
+        }
+        nextDirectory = makeDirectory.find("\\", nextDirectory + 1);
+    }
+
+    std::ofstream outstream(buffer, std::ofstream::out);
+    if (!outstream.is_open())
+    {
+        this->m_AshitaCore->GetChatManager()->Write(buffer);
+        return;
+    }
+
+    outstream << "<ffximove>\n";
+    outstream << std::setprecision(6) << "\t<waypoint name=\"" << Name << "\" X=\"" << x_pos << "\" Y=\"" << y_pos \
+        << "\" Z=\"" << z_pos << "\" />\n";
+    outstream << "</ffximove>";
+    outstream.close();
+    this->m_AshitaCore->GetChatManager()->Write("Successfully wrote the file");
+
+    /** Ashita4 code only for use with settings.h and output.h
+    std::string Path = m_AshitaCore->GetAshitaInstallPathA();
+    int zone = m_AshitaCore->GetDataManager()->GetParty()->GetMemberZone(0);
+    char buffer[1024];
+    sprintf_s(buffer, 1024, "ffximove\\waypoints\\%s", std::to_string(zone));
+    Path = pSettings->GetInputWritePath(buffer);
+    pSettings->CreateDirectories(Path.c_str());
+
+    std::ofstream outstream(Path.c_str());
+    if (!outstream.is_open())
+    {
+        pOutput->error_f("Failed to write settings file.  [%s]", Path.c_str());
+        return;
+    }
+
+    outstream << "<ffximove>\n";
+    outstream << std::setprecision(6) << "\n\t<waypoint name=\"" << Name << "\" X=\"" << x_pos << "\" Y=\"" << y_pos \
+        << "\" Z=\"" << z_pos << "\" />\n";
+    outstream << "</ffximove>";
+    outstream.close();
+    pOutput->message_f("Wrote settings XML. [$H%s$R]", Path.c_str());
+    */
 }

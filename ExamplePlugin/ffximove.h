@@ -38,6 +38,15 @@
  * a single header. Update this path to match where you have Ashita v3 installed to.
  */
 #include "Ashita.h"
+//From thorny's common headers
+//https://github.com/ThornyFFXI/common/tree/master/thirdparty
+#include "thirdparty/rapidxml.hpp"
+//#include "Settings.h"
+//#include "Output.h"
+#include <iostream>
+#include <fstream>
+#include <iomanip>
+#include <filesystem>
 
 /**
  * Plugin Information
@@ -85,6 +94,10 @@ class FFXIMOVE : IPlugin
     ILogManager*        m_LogManager;
     uint32_t            m_PluginId;
     IDirect3DDevice8*   m_Direct3DDevice;
+
+    //Settings helper ashita4 only
+    //SettingsHelper* pSettings;
+    //OutputHelpers* pOutput;
 
     //Multisend follow struct
     //https://git.ashitaxi.com/Plugins/MultiSend/src/branch/master/src/MultiSend/MultiSend.h
@@ -142,6 +155,10 @@ public:
     bool Direct3DDrawPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT PrimitiveCount, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) override;
     bool Direct3DDrawIndexedPrimitiveUP(D3DPRIMITIVETYPE PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, CONST void* pIndexData, D3DFORMAT IndexDataFormat, CONST void* pVertexStreamZeroData, UINT VertexStreamZeroStride) override;
     bool Direct3DSetRenderState(D3DRENDERSTATETYPE State, DWORD Value) override;
+
+    //fileio.cpp
+    //https://github.com/ThornyFFXI/Lootwhore/blob/6cad6d55c9a0e5c7bbb378404d196de8a9e67aff/Lootwhore.h
+    void FFXIMOVE::SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name);
 };
 
 #endif // __ASHITA_FFXIMOVE_H_INCLUDED__
