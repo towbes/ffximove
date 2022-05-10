@@ -50,14 +50,33 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
             p_Follow->Autorun = 0;
             s_last_run_state = false;
         }
-        else if (count >= 3 && args[1] == "save") {
-            this->m_AshitaCore->GetChatManager()->Write("Save waypoint");
-            uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-            float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-            float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-            float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
-            FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[2].c_str());
+        //wp commands
+        if (count >= 3 && args[1] == "wp") {
+            //fm save <name>
+            if (count >= 3 && args[2] == "save") {
+                this->m_AshitaCore->GetChatManager()->Write("Save waypoint");
+                uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
+                float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
+                float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
+                float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
+                FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[2].c_str());
+            }
+            else if (count >= 3 && args[2] == "load") {
+                //this->m_AshitaCore->GetChatManager()->Write("load waypoints");
+                int zone = m_AshitaCore->GetDataManager()->GetParty()->GetMemberZone(0);
+                FFXIMOVE::LoadWaypoints(to_string(zone).c_str());
+            }
+            else if (count >= 3 && args[2] == "list") {
+                this->m_AshitaCore->GetChatManager()->Writef("List size: %d", WaypointList.size());
+                int i = 0;
+                for (const auto& w : WaypointList) {
+                    this->m_AshitaCore->GetChatManager()->Writef("%d: %s", to_string(i), w.first);
+                    //this->m_AshitaCore->GetChatManager()->Writef("%d: %s(%.5f,%.5f) Y:%.5f", to_string(i), w.first, w.second.x, w.second.z, w.second.y);
+                    i++;
+                }
+            }
         }
+
         else if (count >= 2 && args[1] == "loadnav") {
             this->m_AshitaCore->GetChatManager()->Write("Loading navmesh");
             std::string install = m_AshitaCore->GetAshitaInstallPathA();
