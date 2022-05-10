@@ -32,8 +32,14 @@
     <ClInclude Include="ffximove.h">
       <Filter>header</Filter>
     </ClInclude>
+    <ClInclude Include="Settings.h">
+      <Filter>header</Filter>
+    </ClInclude>
     <ClInclude Include="navmesh.h">
-      <Filter>source</Filter>
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="Output.h">
+      <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -110,6 +110,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <ExceptionHandling>Async</ExceptionHandling>
       <AdditionalIncludeDirectories>C:\WingsXI\ffximove\ffximove;C:\Users\ritzgames\Downloads\MQ2Nav-master\MQ2Nav-master\dependencies\recast\Detour\Include;C:\WingsXI\common;C:\WingsXI\Ashita\plugins\ADK</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -186,6 +187,8 @@
   <ItemGroup>
     <ClInclude Include="ffximove.h" />
     <ClInclude Include="navmesh.h" />
+    <ClInclude Include="Output.h" />
+    <ClInclude Include="Settings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="commands.cpp" />

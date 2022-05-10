@@ -86,8 +86,8 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
     p_Follow = (sFollow*)(*((DWORD*)Pointer));
 
     //settings and output helper ashita4 only
-    //pOutput = new OutputHelpers(core, log, "ffximove");
-    //pSettings = new SettingsHelper(core, pOutput, "ffximove");
+    pOutput = new OutputHelpers(core, log, "ffximove");
+    pSettings = new SettingsHelper(core, pOutput, "ffximove");
     m_navMesh = nullptr;
     this->m_AshitaCore->GetChatManager()->Write("Loading navmesh");
     std::string install = m_AshitaCore->GetAshitaInstallPathA();

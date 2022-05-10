@@ -42,14 +42,16 @@
 //https://github.com/ThornyFFXI/common/tree/master/thirdparty
 #include "thirdparty/rapidxml.hpp"
 #include "navmesh.h"
-//#include "Settings.h"
-//#include "Output.h"
+#include "Settings.h"
+#include "Output.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
 #include <filesystem>
 #include <psapi.h>
 #include <stdint.h>
+#include <map>
+#include <string>
 
 
 /**
@@ -101,8 +103,8 @@ private:
     IDirect3DDevice8*   m_Direct3DDevice;
 
     //Settings helper ashita4 only
-    //SettingsHelper* pSettings;
-    //OutputHelpers* pOutput;
+    SettingsHelper* pSettings;
+    OutputHelpers* pOutput;
 
     //Multisend follow struct
     //https://git.ashitaxi.com/Plugins/MultiSend/src/branch/master/src/MultiSend/MultiSend.h
@@ -114,6 +116,9 @@ private:
     std::vector<position_t> m_turnPoints;
     int16_t  m_currentPoint;
     bool   m_onPoint;
+
+    //Waypoint list to save to / load from XML file
+    std::map<std::string, position_t> WaypointList;
 
     //State tracking
     std::string			s_name;
@@ -171,6 +176,7 @@ public:
     //fileio.cpp
     //https://github.com/ThornyFFXI/Lootwhore/blob/6cad6d55c9a0e5c7bbb378404d196de8a9e67aff/Lootwhore.h
     void SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name);
+    void LoadWaypoints(const char* Zonefile);
 
 };
 
