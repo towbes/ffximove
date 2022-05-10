@@ -35,6 +35,7 @@
 constexpr int8_t  CNavMesh::ERROR_NEARESTPOLY;
 constexpr float smallPolyPickExt[3]  = {  0.5f,  1.0f,  0.5f };
 constexpr float polyPickExt[3]       = {  5.0f, 10.0f,  5.0f };
+//constexpr float polyPickExt[3] = { 30.0f, 60.0f,  30.0f };
 constexpr float skinnyPolyPickExt[3] = { 0.01f, 10.0f, 0.01f };
 constexpr float verticalLimit        = 5.0f;
 
@@ -151,25 +152,28 @@ bool CNavMesh::load(const std::string& filename)
         //outputError(status);
         return false;
     }
-
+    //this->m_AshitaCore->GetChatManager()->Writef("%u tiles", header.numTiles);
     // Read tiles.
     for (int i = 0; i < header.numTiles; ++i)
     {
         NavMeshTileHeader tileHeader;
         file.read(reinterpret_cast<char*>(&tileHeader), sizeof(tileHeader));
+        //this->m_AshitaCore->GetChatManager()->Writef("tile %u", i);
         if (!tileHeader.tileRef || !tileHeader.dataSize)
         {
+            //this->m_AshitaCore->GetChatManager()->Writef("tileref: %d , datasize: %d", tileHeader.tileRef, tileHeader.dataSize);
             break;
         }
 
+        //this->m_AshitaCore->GetChatManager()->Writef("datasize: %d", tileHeader.dataSize);
         unsigned char* data = (unsigned char*)dtAlloc(tileHeader.dataSize, DT_ALLOC_PERM);
         if (!data)
         {
+            //this->m_AshitaCore->GetChatManager()->Writef("not data break");
             break;
         }
         memset(data, 0, tileHeader.dataSize);
         file.read(reinterpret_cast<char*>(data), tileHeader.dataSize);
-
         m_navMesh->addTile(data, tileHeader.dataSize, DT_TILE_FREE_DATA, tileHeader.tileRef, nullptr);
     }
 

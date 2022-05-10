@@ -45,6 +45,10 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
         else if (count >= 2 && args[1] == "stop") {
             this->m_AshitaCore->GetChatManager()->Write("Stopping");
             c_run = false;
+            p_Follow->DirX = 0;
+            p_Follow->DirZ = 0;
+            p_Follow->Autorun = 0;
+            s_last_run_state = false;
         }
         else if (count >= 3 && args[1] == "save") {
             this->m_AshitaCore->GetChatManager()->Write("Save waypoint");
@@ -93,12 +97,28 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
 
             this->m_AshitaCore->GetChatManager()->Writef("Setting start position %.5f %.5f %.5f", startPosition.x, startPosition.y, startPosition.z);
 
-
             position_t endPosition;
 
-            endPosition.x = std::stof(args[2].c_str());
-            endPosition.y = std::stof(args[3].c_str());
-            endPosition.z = std::stof(args[4].c_str());
+            if (args[2] == "target") {
+                int targindex = m_AshitaCore->GetDataManager()->GetTarget()->GetTargetIndex();
+
+                float tar_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(targindex);
+                float tar_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(targindex);
+                float tar_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(targindex);
+
+                endPosition.x = tar_pos_x;
+                endPosition.y = tar_pos_y;
+                endPosition.z = tar_pos_z;
+
+            }
+            else {
+                endPosition.x = std::stof(args[2].c_str());
+                endPosition.y = std::stof(args[3].c_str());
+                endPosition.z = std::stof(args[4].c_str());
+            }
+            
+
+
 
             this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
 
@@ -109,7 +129,7 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
                 this->m_AshitaCore->GetChatManager()->Write("No path found");
             }
             else {
-                this->m_AshitaCore->GetChatManager()->Write("Found a path");
+                this->m_AshitaCore->GetChatManager()->Writef("Found a path, %d", m_points.size());
                 m_currentPoint = 0;
                 c_run = true;
             }
