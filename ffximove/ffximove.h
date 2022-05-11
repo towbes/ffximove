@@ -86,6 +86,13 @@ struct sFollow
     unsigned char   Autorun;            // 41-41
 };
 
+struct waypoint_t
+{
+    unsigned int wpid;
+    std::string wpname;
+    position_t pos;
+};
+
 /**
  * Main Plugin Class Instance
  *
@@ -118,7 +125,7 @@ private:
     bool   m_onPoint;
 
     //Waypoint list to save to / load from XML file
-    std::map<std::string, position_t> WaypointList;
+    vector<waypoint_t> WaypointList;
 
     //State tracking
     std::string			s_name;
@@ -177,6 +184,7 @@ public:
     //https://github.com/ThornyFFXI/Lootwhore/blob/6cad6d55c9a0e5c7bbb378404d196de8a9e67aff/Lootwhore.h
     void SaveWaypoint(float x_pos, float z_pos, float y_pos, const char* Name);
     void LoadWaypoints(const char* Zonefile);
+    position_t GetMyPos();
 
 };
 

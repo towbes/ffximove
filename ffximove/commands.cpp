@@ -59,7 +59,7 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
                 float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
                 float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
                 float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
-                FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[2].c_str());
+                FFXIMOVE::SaveWaypoint(my_pos_x, my_pos_z, my_pos_y, args[3].c_str());
             }
             else if (count >= 3 && args[2] == "load") {
                 //this->m_AshitaCore->GetChatManager()->Write("load waypoints");
@@ -68,15 +68,36 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
             }
             else if (count >= 3 && args[2] == "list") {
                 this->m_AshitaCore->GetChatManager()->Writef("List size: %d", WaypointList.size());
-                int i = 0;
                 for (const auto& w : WaypointList) {
-                    this->m_AshitaCore->GetChatManager()->Writef("%d: %s", to_string(i), w.first);
-                    //this->m_AshitaCore->GetChatManager()->Writef("%d: %s(%.5f,%.5f) Y:%.5f", to_string(i), w.first, w.second.x, w.second.z, w.second.y);
-                    i++;
+                    //this->m_AshitaCore->GetChatManager()->Writef("%d: %s", w.wpid, w.wpname);
+                    this->m_AshitaCore->GetChatManager()->Writef("%d: %s(%.05f,%.05f) Y:%.05f", w.wpid, w.wpname.c_str(), w.pos.x, w.pos.z, w.pos.y);
+                }
+            }
+            else if (count >= 3 && args[2] == "go") {
+                int index = atoi(args[3].c_str());
+
+                position_t startPosition = GetMyPos();
+
+                position_t endPosition;
+
+                endPosition.x = WaypointList[index].pos.x;
+                endPosition.y = WaypointList[index].pos.y;
+                endPosition.z = WaypointList[index].pos.z;
+
+                this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
+
+                this->m_AshitaCore->GetChatManager()->Write("Finding a path");
+                m_points = m_navMesh->findPath(startPosition, endPosition);
+                if (!m_points.size() > 0) {
+                    this->m_AshitaCore->GetChatManager()->Write("No path found");
+                }
+                else {
+                    this->m_AshitaCore->GetChatManager()->Writef("Found a path, %d", m_points.size());
+                    m_currentPoint = 0;
+                    c_run = true;
                 }
             }
         }
-
         else if (count >= 2 && args[1] == "loadnav") {
             this->m_AshitaCore->GetChatManager()->Write("Loading navmesh");
             std::string install = m_AshitaCore->GetAshitaInstallPathA();
@@ -102,19 +123,7 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
         else if (count >= 2 && args[1] == "findpath") {
             this->m_AshitaCore->GetChatManager()->Write("Finding Path");
 
-            //Get character positions
-            uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
-            float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
-            float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
-            float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
-
-            position_t startPosition;
-
-            startPosition.x = my_pos_x;
-            startPosition.y = my_pos_y;
-            startPosition.z = my_pos_z;
-
-            this->m_AshitaCore->GetChatManager()->Writef("Setting start position %.5f %.5f %.5f", startPosition.x, startPosition.y, startPosition.z);
+            position_t startPosition = GetMyPos();
 
             position_t endPosition;
 
@@ -135,12 +144,8 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
                 endPosition.y = std::stof(args[3].c_str());
                 endPosition.z = std::stof(args[4].c_str());
             }
-            
-
-
 
             this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
-
 
             this->m_AshitaCore->GetChatManager()->Write("Finding a path");
             m_points = m_navMesh->findPath(startPosition, endPosition);
@@ -159,4 +164,23 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
 
     // Return false here to allow unhandled commands to continue to be processed.
     return false;
+}
+
+
+position_t FFXIMOVE::GetMyPos() {
+    //Get character positions
+    uint16_t myindex = m_AshitaCore->GetDataManager()->GetParty()->GetMemberTargetIndex(0);
+    float my_pos_x = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalX(myindex);
+    float my_pos_y = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalY(myindex);
+    float my_pos_z = m_AshitaCore->GetDataManager()->GetEntity()->GetLocalZ(myindex);
+
+    position_t startPosition;
+
+    startPosition.x = my_pos_x;
+    startPosition.y = my_pos_y;
+    startPosition.z = my_pos_z;
+
+    this->m_AshitaCore->GetChatManager()->Writef("Setting start position %.5f %.5f %.5f", startPosition.x, startPosition.y, startPosition.z);
+
+    return startPosition;
 }

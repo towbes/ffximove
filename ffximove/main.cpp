@@ -85,6 +85,21 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
     Pointer += 25;
     p_Follow = (sFollow*)(*((DWORD*)Pointer));
 
+    //initialize target x and z to 0
+    s_tarpos_x = 0;
+    s_tarpos_z = 0;
+
+    //Default settings.
+    c_run = false;
+    c_attemptzone = false;
+    c_debug = false;
+    c_safemode = false;
+    c_maxdist = 5000.0f;
+
+    //initialize waypoint vector
+    std::vector<waypoint_t> WaypointList();
+
+
     //settings and output helper ashita4 only
     pOutput = new OutputHelpers(core, log, "ffximove");
     pSettings = new SettingsHelper(core, pOutput, "ffximove");
@@ -111,16 +126,7 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
         this->m_AshitaCore->GetChatManager()->Write("Navmesh loaded");
     }
 
-    //initialize target x and z to 0
-    s_tarpos_x = 0;
-    s_tarpos_z = 0;
-
-    //Default settings.
-    c_run = false;
-    c_attemptzone = false;
-    c_debug = false;
-    c_safemode = false;
-    c_maxdist = 5000.0f;
+    FFXIMOVE::LoadWaypoints(to_string(zone).c_str());
 
     return true;
 }
