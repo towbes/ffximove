@@ -243,18 +243,17 @@ void CNavMesh::outputError(uint32_t status)
 
 std::vector<position_t> CNavMesh::findPath(const position_t& start, const position_t& end)
 {
-    this->m_AshitaCore->GetChatManager()->Write("navmesh Finding a path");
     //TracyZoneScoped;
     std::vector<position_t> ret;
     dtStatus                status;
 
     float spos[3];
     CNavMesh::ToDetourPos(&start, spos);
-    this->m_AshitaCore->GetChatManager()->Writef("start pos %f %f %f", spos[0], spos[1], spos[2]);
+    //this->m_AshitaCore->GetChatManager()->Writef("start pos %f %f %f", spos[0], spos[1], spos[2]);
 
     float epos[3];
     CNavMesh::ToDetourPos(&end, epos);
-    this->m_AshitaCore->GetChatManager()->Writef("end pos %f %f %f", epos[0], epos[1], epos[2]);
+    //this->m_AshitaCore->GetChatManager()->Writef("end pos %f %f %f", epos[0], epos[1], epos[2]);
 
     dtQueryFilter filter;
     filter.setIncludeFlags(0xffff);

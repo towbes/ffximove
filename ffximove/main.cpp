@@ -91,6 +91,7 @@ bool FFXIMOVE::Initialize(IAshitaCore* core, ILogManager* log, uint32_t id)
 
     //Default settings.
     c_run = false;
+    c_tolerance = 1.0f;
     c_attemptzone = false;
     c_debug = false;
     c_safemode = false;

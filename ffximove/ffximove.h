@@ -139,6 +139,7 @@ private:
 
     //Configuration
     float				c_maxdist;
+    float               c_tolerance;
     volatile bool		c_attemptzone;
     volatile bool		c_run;
     volatile bool		c_debug;

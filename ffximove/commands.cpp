@@ -43,12 +43,16 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
             c_run = true;
         }
         else if (count >= 2 && args[1] == "stop") {
-            this->m_AshitaCore->GetChatManager()->Write("Stopping");
+            //this->m_AshitaCore->GetChatManager()->Write("Stopping");
             c_run = false;
             p_Follow->DirX = 0;
             p_Follow->DirZ = 0;
             p_Follow->Autorun = 0;
             s_last_run_state = false;
+        }
+        else if (count >= 2 && args[1] == "tolerance") {
+            c_tolerance = stof(args[2].c_str());
+            this->m_AshitaCore->GetChatManager()->Writef("Tolerance changed to %.2f", c_tolerance);
         }
         //wp commands
         if (count >= 3 && args[1] == "wp") {
@@ -84,9 +88,9 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
                 endPosition.y = WaypointList[index].pos.y;
                 endPosition.z = WaypointList[index].pos.z;
 
-                this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
+                //this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
 
-                this->m_AshitaCore->GetChatManager()->Write("Finding a path");
+                //this->m_AshitaCore->GetChatManager()->Write("Finding a path");
                 m_points = m_navMesh->findPath(startPosition, endPosition);
                 if (!m_points.size() > 0) {
                     this->m_AshitaCore->GetChatManager()->Write("No path found");
@@ -121,7 +125,7 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
             }
         }
         else if (count >= 2 && args[1] == "findpath") {
-            this->m_AshitaCore->GetChatManager()->Write("Finding Path");
+            //this->m_AshitaCore->GetChatManager()->Write("Finding Path");
 
             position_t startPosition = GetMyPos();
 
@@ -145,15 +149,15 @@ bool FFXIMOVE::HandleCommand(const char* command, int32_t type)
                 endPosition.z = std::stof(args[4].c_str());
             }
 
-            this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
+            //this->m_AshitaCore->GetChatManager()->Writef("Setting end position %.5f %.5f %.5f", endPosition.x, endPosition.y, endPosition.z);
 
-            this->m_AshitaCore->GetChatManager()->Write("Finding a path");
+            //this->m_AshitaCore->GetChatManager()->Write("Finding a path");
             m_points = m_navMesh->findPath(startPosition, endPosition);
             if (!m_points.size() > 0) {
                 this->m_AshitaCore->GetChatManager()->Write("No path found");
             }
             else {
-                this->m_AshitaCore->GetChatManager()->Writef("Found a path, %d", m_points.size());
+                //this->m_AshitaCore->GetChatManager()->Writef("Found a path, %d", m_points.size());
                 m_currentPoint = 0;
                 c_run = true;
             }
@@ -180,7 +184,7 @@ position_t FFXIMOVE::GetMyPos() {
     startPosition.y = my_pos_y;
     startPosition.z = my_pos_z;
 
-    this->m_AshitaCore->GetChatManager()->Writef("Setting start position %.5f %.5f %.5f", startPosition.x, startPosition.y, startPosition.z);
+    //this->m_AshitaCore->GetChatManager()->Writef("Setting start position %.5f %.5f %.5f", startPosition.x, startPosition.y, startPosition.z);
 
     return startPosition;
 }

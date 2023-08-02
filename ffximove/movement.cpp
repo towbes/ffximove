@@ -26,7 +26,7 @@ void FFXIMOVE::Direct3DPreRender(void)
         }
         else {
             c_run = false;
-            this->m_AshitaCore->GetChatManager()->Write("Done running");
+            //this->m_AshitaCore->GetChatManager()->Write("Done running");
             p_Follow->DirX = 0;
             p_Follow->DirZ = 0;
             p_Follow->Autorun = 0;
@@ -38,7 +38,7 @@ void FFXIMOVE::Direct3DPreRender(void)
 
         double distance = sqrt(pow(s_vector_x, 2) + pow(s_vector_z, 2));
 
-        if ((distance > 0.4f) && (distance < c_maxdist))
+        if ((distance > c_tolerance) && (distance < c_maxdist))
         {
             p_Follow->FollowID = 0;
             p_Follow->FollowIndex = 0;
